@@ -1,5 +1,15 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;      Breed Declarations     ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+breed [ people person ]
+breed [ lights light ]
+
 to setup
+  clear-all
   setup-background
+  setup-lights
+  setup-people number_of_people
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -7,7 +17,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup-background
-  ask patches [ set pcolor white ]
+  ask patches [ set pcolor 102.5 ]
   setup-walls
 end
 
@@ -17,6 +27,7 @@ to setup-walls
   create-wall -16  16 32 0
   create-wall -16 -16 0  32
   create-wall  16 -16 0  32
+
   create-wall -6  -16 0  8
   create-wall -16 -7  4  0
   create-wall -9  -7  3  0
@@ -28,6 +39,21 @@ to setup-walls
   create-wall  5   0  0  9
   create-wall  5  12  0  3
   create-wall  6  -7  10  0
+end
+
+to setup-lights
+  create-light 0   11
+  create-light 0   -11
+  create-light -11 11
+  create-light -11 -11
+  create-light 11  -11
+  create-light 11  0
+  create-light 11  11
+end
+
+to setup-people [number]
+  create-people number [ setxy random-xcor random-ycor
+                         set color red ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -42,6 +68,11 @@ end
 to create-wall [x y xleng yleng]     ;; Creates and initializes a wall
   ask patches with [pxcor >= x and pycor >= y and pxcor <= (x + xleng) and pycor <= (y + yleng)]
     [ set pcolor black ]
+end
+
+to create-light [x y]
+  create-lights 1 [setxy x y
+                   set color yellow]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -87,6 +118,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+21
+67
+193
+100
+number_of_people
+number_of_people
+1
+20
+4.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
