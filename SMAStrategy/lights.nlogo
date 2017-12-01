@@ -4,12 +4,18 @@
 
 breed [ people person ]
 breed [ lights light ]
+breed [ walls wall ]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;      Binding to buttons     ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
   clear-all
   setup-background
   setup-lights
   setup-people number_of_people
+  reset-ticks
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -74,12 +80,26 @@ to create-light [x y]
   create-lights 1 [setxy x y
                    set color yellow]
 end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;      Breeds Behaviours      ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ask people [
+    lt random 90
+    rt random 90
+    if [pcolor] of patch-ahead 1 != black
+      [fd 1]
+  ]
+  tick
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-538
-339
+287
+28
+615
+357
 -1
 -1
 9.7
@@ -103,10 +123,10 @@ ticks
 30.0
 
 BUTTON
-25
-22
-88
-55
+21
+23
+84
+56
 NIL
 setup
 NIL
@@ -128,11 +148,28 @@ number_of_people
 number_of_people
 1
 20
-4.0
+8.0
 1
 1
 NIL
 HORIZONTAL
+
+BUTTON
+98
+24
+161
+57
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
