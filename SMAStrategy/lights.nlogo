@@ -4,7 +4,7 @@
 
 breed [ people person ]
 breed [ lights light ]
-breed [ walls wall ]
+patches-own [ intensity ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      Binding to buttons     ;;;
@@ -48,6 +48,7 @@ to setup-walls
 end
 
 to setup-lights
+  set-default-shape lights "circle"
   create-light 0   11
   create-light 0   -11
   create-light -11 11
@@ -58,6 +59,7 @@ to setup-lights
 end
 
 to setup-people [number]
+  set-default-shape people "person"
   create-people number [ setxy random-xcor random-ycor
                          set color red ]
 end
@@ -78,7 +80,8 @@ end
 
 to create-light [x y]
   create-lights 1 [setxy x y
-                   set color yellow]
+                   set color yellow
+                   set intensity light_intensity]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,7 +95,15 @@ to go
     if [pcolor] of patch-ahead 1 != black
       [fd 1]
   ]
+  diffuse intensity diffusion_rate
+  diffuse-light
   tick
+end
+
+to diffuse-light
+  ask patches with [pcolor != black]
+  [set pcolor 102.5 + intensity]
+  ask lights [set intensity light_intensity]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -155,10 +166,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-98
-24
-161
-57
+129
+23
+192
+56
 NIL
 go
 T
@@ -170,6 +181,36 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+21
+111
+193
+144
+light_intensity
+light_intensity
+0
+7.5
+7.5
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+21
+154
+193
+187
+diffusion_rate
+diffusion_rate
+0
+1
+1.0
+0.05
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
