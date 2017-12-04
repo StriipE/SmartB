@@ -4,7 +4,8 @@
 
 breed [ people person ]
 breed [ lights light ]
-patches-own [ intensity ]
+patches-own [ intensity room-number people-in-room ]
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      Binding to buttons     ;;;
@@ -14,6 +15,7 @@ to setup
   clear-all
   setup-background
   setup-lights
+  setup-rooms
   setup-people number_of_people
   reset-ticks
 end
@@ -58,6 +60,15 @@ to setup-lights
   create-light 11  11
 end
 
+to setup-rooms
+  create-room -15 -15 8 7  1
+  create-room -15 0   8 15 2
+  create-room -15 -6  9 4  3
+  create-room -5  -15 9 30 3
+  create-room 6   -15 9 7  4
+  create-room 9   -9  9 21 5
+end
+
 to setup-people [number]
   set-default-shape people "person"
   create-people number [ setxy random-xcor random-ycor
@@ -84,11 +95,17 @@ to create-light [x y]
                    set intensity light_intensity]
 end
 
+to create-room [xstart ystart xleng yleng number]
+  ask patches with [pxcor >= xstart and pycor >= ystart and pxcor <= (xstart + xleng) and pycor <= (ystart + yleng)]
+    [ set room-number number ]
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      Breeds Behaviours      ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
+  reset-number-of-people
   ask people [
     lt random 90
     rt random 90
@@ -97,6 +114,7 @@ to go
   ]
   diffuse intensity diffusion_rate
   diffuse-light
+  count-people-in-room
   tick
 end
 
@@ -104,6 +122,23 @@ to diffuse-light
   ask patches with [pcolor != black]
   [set pcolor 102.5 + intensity]
   ask lights [set intensity light_intensity]
+end
+
+to count-people-in-room
+  ask people
+  [ ask patch-at 0 0
+      [ change-number-of-people-in-room room-number 1 ]
+  ]
+end
+
+to change-number-of-people-in-room [number people-number]
+  ask patches with [ number = room-number ]
+    [ set people-in-room people-in-room + people-number]
+end
+
+to reset-number-of-people
+  ask patches with [ people-in-room > 0 ]
+  [ set people-in-room 0 ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -191,7 +226,7 @@ light_intensity
 light_intensity
 0
 7.5
-7.5
+4.0
 0.1
 1
 NIL
