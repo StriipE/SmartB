@@ -5,7 +5,7 @@
 breed [ people person ]
 breed [ lights light ]
 patches-own [ intensity room-number people-in-room ]
-
+globals [hour-of-day]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      Binding to buttons     ;;;
@@ -16,6 +16,7 @@ to setup
   setup-background
   setup-lights
   setup-rooms
+  setup-windows
   setup-people number_of_people
   reset-ticks
 end
@@ -51,8 +52,7 @@ end
 
 to setup-lights
   set-default-shape lights "circle"
-  create-light 0   11
-  create-light 0   -11
+  create-light 0   0
   create-light -11 11
   create-light -11 -11
   create-light 11  -11
@@ -66,7 +66,35 @@ to setup-rooms
   create-room -15 -6  9 4  3
   create-room -5  -15 9 30 3
   create-room 6   -15 9 7  4
-  create-room 9   -9  9 21 5
+  create-room 6   -6  9 21 5
+end
+
+to setup-windows
+  create-window -16 -12
+  create-window -16 -11
+  create-window -16 3
+  create-window -16 4
+  create-window -16 5
+  create-window -16 6
+  create-window -16 7
+  create-window -16 8
+  create-window -16 9
+  create-window -16 10
+  create-window -16 11
+  create-window -16 12
+  create-window -16 13
+  create-window 16  -2
+  create-window 16  -3
+  create-window 16  11
+  create-window 16  12
+  create-window 16  -12
+  create-window 16  -11
+  create-window 10  16
+  create-window 11  16
+  create-window -1  16
+  create-window 0   16
+  create-window -1  -16
+  create-window 0   -16
 end
 
 to setup-people [number]
@@ -80,6 +108,39 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+to go
+  reset-number-of-people
+  ask people [
+    lt random 90
+    rt random 90
+    if [pcolor] of patch-ahead 1 != black and [pcolor] of patch-ahead 1 != 88.5
+      [fd 1]
+  ]
+  count-people-in-room
+
+
+  ifelse hour-of-day > 7 and hour-of-day < 19
+  [
+     ask lights
+     [ set color grey ]
+     diffuse-window-light
+  ]
+  [
+     ask lights [
+     ifelse people-in-room = 0
+       [ empty-room-shut-down-light room-number
+         set pcolor 102.5
+         set color grey ]
+       [ set color yellow ]
+     ]
+     diffuse-light
+  ]
+
+  diffuse intensity diffusion_rate
+  tick
+  set hour-of-day (ticks / 10) mod 23
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      Creating objects       ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -87,6 +148,12 @@ end
 to create-wall [x y xleng yleng]     ;; Creates and initializes a wall
   ask patches with [pxcor >= x and pycor >= y and pxcor <= (x + xleng) and pycor <= (y + yleng)]
     [ set pcolor black ]
+end
+
+to create-window [x y]
+  ask patches with [pxcor = x and pycor = y]
+    [ set pcolor 88.5
+      set intensity light_intensity ]
 end
 
 to create-light [x y]
@@ -104,24 +171,20 @@ end
 ;;;      Breeds Behaviours      ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to go
-  reset-number-of-people
-  ask people [
-    lt random 90
-    rt random 90
-    if [pcolor] of patch-ahead 1 != black
-      [fd 1]
-  ]
-  diffuse intensity diffusion_rate
-  diffuse-light
-  count-people-in-room
-  tick
-end
-
 to diffuse-light
-  ask patches with [pcolor != black]
+  ;; Diffuses the light of lights inside the building ;;
+
+  ask patches with [pcolor != black and pcolor != 88.5]
   [set pcolor 102.5 + intensity]
   ask lights [set intensity light_intensity]
+
+end
+
+to diffuse-window-light
+  ask patches with [pcolor != black and pcolor != 88.5]
+  [set pcolor 102.5 + intensity]
+  ask patches with [pcolor = 88.5]
+  [set intensity light_intensity]
 end
 
 to count-people-in-room
@@ -134,6 +197,11 @@ end
 to change-number-of-people-in-room [number people-number]
   ask patches with [ number = room-number ]
     [ set people-in-room people-in-room + people-number]
+end
+
+to empty-room-shut-down-light [number]
+  ask patches with [ number = room-number ]
+    [ set intensity 0 ]
 end
 
 to reset-number-of-people
@@ -194,7 +262,7 @@ number_of_people
 number_of_people
 1
 20
-8.0
+5.0
 1
 1
 NIL
@@ -226,7 +294,7 @@ light_intensity
 light_intensity
 0
 7.5
-4.0
+6.8
 0.1
 1
 NIL
@@ -246,6 +314,17 @@ diffusion_rate
 1
 NIL
 HORIZONTAL
+
+MONITOR
+21
+201
+123
+246
+Hour of the Day
+hour-of-day
+0
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
