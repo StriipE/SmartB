@@ -5,7 +5,7 @@
 breed [ people person ]
 breed [ lights light ]
 patches-own [ intensity room-number people-in-room ]
-globals [hour-of-day]
+globals [hour-of-day consumption]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      Binding to buttons     ;;;
@@ -119,12 +119,25 @@ to go
   count-people-in-room
 
 
-  ifelse hour-of-day > 7 and hour-of-day < 19
+  if hour-of-day > 7 and hour-of-day <= 11
   [
      ask lights
      [ set color grey ]
-     diffuse-window-light
+     diffuse-window-light "left"
   ]
+  if hour-of-day > 11 and hour-of-day <= 15
+  [
+     ask lights
+     [ set color grey ]
+     diffuse-window-light "top"
+  ]
+  if hour-of-day > 15 and hour-of-day < 19
+  [
+     ask lights
+     [ set color grey ]
+     diffuse-window-light "right"
+  ]
+  if hour-of-day >= 19 or hour-of-day <= 7
   [
      ask lights [
      ifelse people-in-room = 0
@@ -139,6 +152,7 @@ to go
   diffuse intensity diffusion_rate
   tick
   set hour-of-day (ticks / 10) mod 23
+  set consumption 0
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -180,11 +194,30 @@ to diffuse-light
 
 end
 
-to diffuse-window-light
+to diffuse-window-light [direction]
   ask patches with [pcolor != black and pcolor != 88.5]
   [set pcolor 102.5 + intensity]
-  ask patches with [pcolor = 88.5]
-  [set intensity light_intensity]
+  if direction = "left"
+  [
+    ask patches with [pcolor = 88.5 and pxcor = -16]
+    [set intensity 7]
+    ask patches with [pcolor = 88.5 and pxcor != -16]
+    [set intensity 2.5]
+  ]
+  if direction = "top"
+  [
+    ask patches with [pcolor = 88.5 and pycor = 16]
+    [set intensity 7]
+    ask patches with [pcolor = 88.5 and pycor != 16]
+    [set intensity 2.5]
+  ]
+  if direction = "right"
+  [
+    ask patches with [pcolor = 88.5 and pxcor = 16]
+    [set intensity 7]
+    ask patches with [pcolor = 88.5 and pxcor != 16]
+    [set intensity 2.5]
+  ]
 end
 
 to count-people-in-room
@@ -210,21 +243,21 @@ to reset-number-of-people
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-287
-28
-615
-357
+374
+10
+847
+484
 -1
 -1
-9.7
+14.1
 1
 10
 1
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
@@ -262,7 +295,7 @@ number_of_people
 number_of_people
 1
 20
-5.0
+7.0
 1
 1
 NIL
@@ -325,6 +358,35 @@ hour-of-day
 0
 1
 11
+
+MONITOR
+21
+257
+106
+302
+Consumption
+consumption
+17
+1
+11
+
+PLOT
+142
+201
+342
+351
+Lights on
+Hour of the Day
+Consumption
+0.0
+24.0
+0.0
+6.0
+true
+true
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plotxy hour-of-day count lights with [color = yellow]\nif hour-of-day = 0\n[ clear-plot ]"
 
 @#$#@#$#@
 ## WHAT IS IT?
